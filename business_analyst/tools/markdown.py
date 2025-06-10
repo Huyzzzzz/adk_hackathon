@@ -1,10 +1,7 @@
-import json
 from datetime import datetime
 from typing import Any, Dict
 from pathlib import Path
 from google.adk.tools import ToolContext
-
-
 def json_to_markdown(data: Any) -> str:
     """
     Convert JSON data to Markdown format.

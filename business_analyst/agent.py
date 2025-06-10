@@ -1,5 +1,4 @@
 """Main Business Analyst Agent that coordinates business analysis tasks."""
-from pathlib import Path
 from google.adk.agents import SequentialAgent, ParallelAgent, LlmAgent
 from datetime import date
 from .utils.utils import get_env_var
@@ -8,14 +7,6 @@ from .sub_agents.ac_agent.agent import ac_agent
 from .sub_agents.do_agent.agent import do_agent
 from .sub_agents.uc_agent.agent import uc_agent
 
-from google.adk.sessions import DatabaseSessionService
-from google.adk.runners import Runner
-from google.genai import types
-from google.adk.tools import FunctionTool
-from .tools.markdown import convert_and_save_json
-from pathlib import Path
-
-from business_analyst.tools import storage
 
 date_today = date.today()
 
@@ -39,11 +30,7 @@ sequential_agent = SequentialAgent(
     ],
     description="Business Analyst Multi-Agent System for comprehensive business analysis" # TODO: Check prompt
 )
-add_tool = FunctionTool(
-    func=convert_and_save_json,
-    description="Convert and save the current agent state to a markdown file",
-    name="save_state_to_markdown"
-)
+
 
 business_analyst_coordinator = LlmAgent(
     name="business_analyst_root_agent",
@@ -68,17 +55,9 @@ business_analyst_coordinator = LlmAgent(
     Always maintain a professional tone and focus on delivering actionable business analysis insights.
     """,
     sub_agents=[sequential_agent],
-    tools=[add_tool],
-    output_key="business_analyst_output",
-    tools=[
-      storage.create_bucket_tool,
-      storage.list_buckets_tool,
-      storage.get_bucket_details_tool,
-      storage.list_blobs_tool,
-      storage.upload_file_gcs_tool,
-      storage.download_pdf_tool
-    ],
-)
+    output_key="business_analyst_output"
+    )
+
 
 root_agent = business_analyst_coordinator
 
