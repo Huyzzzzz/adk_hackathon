@@ -77,7 +77,7 @@ def save_markdown_file(content: str, filename: str = "output.md", folder_path: s
         raise
 
 
-def convert_and_save_json(tool_context: ToolContext) -> Dict[str, Any]:
+def convert_and_save_state(tool_context: ToolContext) -> Dict[str, Any]:
     """
     Convert state data from ToolContext to Markdown and save to file.
 

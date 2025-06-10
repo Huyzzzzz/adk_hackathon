@@ -6,8 +6,8 @@ from .sub_agents.ur_agent.agent import ur_agent
 from .sub_agents.ac_agent.agent import ac_agent
 from .sub_agents.do_agent.agent import do_agent
 from .sub_agents.uc_agent.agent import uc_agent
-
-
+from .tools.markdown import convert_and_save_state
+from google.adk.tools import FunctionTool
 date_today = date.today()
 
 # Step 1: User requirements analysis (runs first)
@@ -31,7 +31,6 @@ sequential_agent = SequentialAgent(
     description="Business Analyst Multi-Agent System for comprehensive business analysis" # TODO: Check prompt
 )
 
-
 business_analyst_coordinator = LlmAgent(
     name="business_analyst_root_agent",
     model=get_env_var("BA_VISTA_COORDINATOR_MODEL"),
@@ -46,13 +45,8 @@ business_analyst_coordinator = LlmAgent(
       - Respond directly based on your knowledge base about business analysis
       - Provide helpful information related to business analysis methodology
       - Suggest what kind of documents the user might want to upload for full analysis
-    Before the session end, you must use the `add_tool` function to save all the outputs and inputs to markdown format.
-    Use the available GCS storage tools to:
-    - Create and manage buckets for organizing business analysis projects
-    - Upload user documents and store analysis results
-    - Retrieve previously stored documents when needed
-    - List and organize files within project buckets
-    Always maintain a professional tone and focus on delivering actionable business analysis insights.
+    Before the session end, you must use the `save_to_mardown` function to save all the outputs and inputs to markdown format.
+
     """,
     sub_agents=[sequential_agent],
     output_key="business_analyst_output"
