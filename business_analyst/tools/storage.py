@@ -3,7 +3,6 @@ from google.cloud import storage
 from google.api_core.exceptions import GoogleAPIError
 from google.adk.tools import ToolContext, FunctionTool
 from typing import Dict, Any, Optional
-import logging
 
 from ..config import (
     PROJECT_ID,

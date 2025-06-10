@@ -2,11 +2,20 @@ import os
 import tempfile
 import logging
 from datetime import datetime
+from google.adk.tools import ToolContext, FunctionTool
+from langchain_community.document_loaders import PDFPlumberLoader
 from typing import Optional
 
-from langchain_community.document_loaders import PDFPlumberLoader
+from ..config import (
+    LOG_LEVEL,
+    LOG_FORMAT
+)
 
-from google.adk.tools import ToolContext, FunctionTool
+# Configure logging
+logging.basicConfig(
+    level=getattr(logging, LOG_LEVEL),
+    format=LOG_FORMAT
+)
 
 def parse_file(
     tool_context: ToolContext,
@@ -76,10 +85,10 @@ def parse_file(
         num_pages = len(documents) if documents else 0
 
         markdown_output = f"""## File Analysis: {file_name}
-- Processing time: {timestamp}
-- Size: {file_size_kb:.2f} KB
-- Number of pages: {num_pages}
-- Parsed at: {timestamp}
+- **Processing time:** {timestamp}
+- **Size:** {file_size_kb:.2f} KB
+- **Number of pages:** {num_pages}
+- **Parsed at:** {timestamp}
 
 ### Extracted Content
 ```text
@@ -92,28 +101,49 @@ def parse_file(
 
         # --- STEP 4: SAVE TO LOCAL MARKDOWN FILE ---
         try:
+            # Validate the path and ensure it's not empty
+            if not local_markdown_path or local_markdown_path.strip() == "":
+                local_markdown_path = "/home/juhan/Downloads/parsed_documents.md"
+            
+            # Get the directory path
+            directory = os.path.dirname(local_markdown_path)
+            
+            # If directory is empty, use Downloads folder
+            if not directory:
+                local_markdown_path = "/home/juhan/Downloads/parsed_documents.md"
+                directory = "/home/juhan/Downloads"
+            
             # Ensure the Downloads directory exists
-            os.makedirs(os.path.dirname(local_markdown_path), exist_ok=True)
+            os.makedirs(directory, exist_ok=True)
             
             # Append to markdown file in Downloads folder
             with open(local_markdown_path, 'a', encoding='utf-8') as f:
                 f.write(markdown_output)
             
             # Add success message to output
-            save_message = f"\nContent saved to: `{local_markdown_path}`"
+            save_message = f"\n**✅ Content saved to:** `{local_markdown_path}`"
             markdown_output += save_message
             
         except Exception as save_error:
             logging.error(f"Error saving markdown file: {save_error}")
-            save_message = f"\nWarning: Could not save to file: {str(save_error)}"
-            markdown_output += save_message
+            # Fallback to a guaranteed path
+            fallback_path = "/home/juhan/Downloads/parsed_documents.md"
+            try:
+                os.makedirs("/home/juhan/Downloads", exist_ok=True)
+                with open(fallback_path, 'a', encoding='utf-8') as f:
+                    f.write(markdown_output)
+                save_message = f"\n**✅ Content saved to fallback location:** `{fallback_path}`"
+                markdown_output += save_message
+            except Exception as fallback_error:
+                save_message = f"\n**⚠️ Warning:** Could not save to file: {str(save_error)}"
+                markdown_output += save_message
 
         return markdown_output.strip()
           
     except Exception as e:
         # Log detailed error for debugging if needed
         logging.error(f"Error parsing file with LangChain: {e}", exc_info=True)
-        return f"## Error Occurred\n**Details: {str(e)}"
+        return f"## Error Occurred\n**Details:** {str(e)}"
 
 # Create function tool
 parse_file_tool = FunctionTool(parse_file)
