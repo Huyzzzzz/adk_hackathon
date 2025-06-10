@@ -10,7 +10,11 @@ from .sub_agents.do_agent.agent import do_agent
 from .sub_agents.uc_agent.agent import uc_agent
 
 # import tool
-from business_analyst.tools import storage
+from business_analyst.tools import (
+  storage,
+  parsing
+)
+
 
 date_today = date.today()
 
@@ -66,7 +70,8 @@ business_analyst_coordinator = LlmAgent(
       storage.get_bucket_details_tool,
       storage.list_blobs_tool,
       storage.upload_file_gcs_tool,
-      storage.download_pdf_tool
+      storage.download_pdf_tool,
+      parsing.parse_file_tool
     ],
 )
 
