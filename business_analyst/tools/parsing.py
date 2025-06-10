@@ -1,9 +1,8 @@
-import io
 import os
 import tempfile
 import logging
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
 
 from langchain_community.document_loaders import PDFPlumberLoader
 
@@ -12,7 +11,7 @@ from google.adk.tools import ToolContext, FunctionTool
 def parse_file(
     tool_context: ToolContext,
     file_name: str = "uploaded_document.pdf",
-    local_markdown_path: str = "/home/juhan/adk_hackathon/parsed_documents.md"
+    local_markdown_path: str = "/home/juhan/Downloads/parsed_documents.md"
 ) -> str:
     """
     Find attached PDF file, use LangChain's PDFPlumberLoader to extract
@@ -76,23 +75,27 @@ def parse_file(
         file_size_kb = len(pdf_data) / 1024
         num_pages = len(documents) if documents else 0
 
-        markdown_output = f"""
-            ## File Analysis: {file_name}
-            - Processing time: {timestamp}
-            - Size: {file_size_kb:.2f} KB
-            - Number of pages: {num_pages}
-            - Parsed at: {timestamp}
+        markdown_output = f"""## File Analysis: {file_name}
+- Processing time: {timestamp}
+- Size: {file_size_kb:.2f} KB
+- Number of pages: {num_pages}
+- Parsed at: {timestamp}
 
-            ### Extracted Content
-            {content.strip()}
-            """
+### Extracted Content
+```text
+{content.strip()}
+```
+
+---
+
+"""
 
         # --- STEP 4: SAVE TO LOCAL MARKDOWN FILE ---
         try:
-            # Ensure the directory exists
+            # Ensure the Downloads directory exists
             os.makedirs(os.path.dirname(local_markdown_path), exist_ok=True)
             
-            # Append to markdown file
+            # Append to markdown file in Downloads folder
             with open(local_markdown_path, 'a', encoding='utf-8') as f:
                 f.write(markdown_output)
             
@@ -110,7 +113,7 @@ def parse_file(
     except Exception as e:
         # Log detailed error for debugging if needed
         logging.error(f"Error parsing file with LangChain: {e}", exc_info=True)
-        return f"## Error Occurred\nDetails: {str(e)}"
+        return f"## Error Occurred\n**Details: {str(e)}"
 
 # Create function tool
 parse_file_tool = FunctionTool(parse_file)

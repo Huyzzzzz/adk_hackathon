@@ -56,7 +56,7 @@ business_analyst_coordinator = LlmAgent(
     
     Use the available GCS storage tools to:
     - Create and manage buckets for organizing business analysis projects
-    - Upload user documents and store analysis results
+    - Upload user documents, parse the file using LangChain's PDFPlumberLoader to extract content as Markdown
     - Retrieve previously stored documents when needed
     - List and organize files within project buckets
 
