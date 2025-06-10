@@ -26,7 +26,6 @@ class UserRequirementsOutput(BaseModel):
     """Output structure for user requirements analysis."""
     requirements: List[UserRequirement] = Field(description="List of extracted user requirements")
 
-
 # Create the User Requirements Agent with LLM reasoning-based tools
 ur_extraction = Agent(
     model=get_env_var("UR_AGENT_MODEL"),
@@ -47,5 +46,3 @@ ur_agent = Agent(
         temperature=0.0, top_p=0.5
     )
 )
-
-

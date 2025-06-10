@@ -6,3 +6,5 @@ from .storage import (
     upload_file_gcs_tool,
     download_pdf_tool
 )
+
+from .parsing import parse_file_tool

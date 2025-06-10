@@ -6,8 +6,13 @@ from .sub_agents.ur_agent.agent import ur_agent
 from .sub_agents.ac_agent.agent import ac_agent
 from .sub_agents.do_agent.agent import do_agent
 from .sub_agents.uc_agent.agent import uc_agent
-from .tools.markdown import convert_and_save_state
-from google.adk.tools import FunctionTool
+
+from business_analyst.tools import (
+  storage,
+  parsing
+)
+
+
 date_today = date.today()
 
 # Step 1: User requirements analysis (runs first)
@@ -45,14 +50,25 @@ business_analyst_coordinator = LlmAgent(
       - Respond directly based on your knowledge base about business analysis
       - Provide helpful information related to business analysis methodology
       - Suggest what kind of documents the user might want to upload for full analysis
-    Before the session end, you must use the `save_to_mardown` function to save all the outputs and inputs to markdown format.
+    
+    Use the available GCS storage tools to:
+    - Create and manage buckets for organizing business analysis projects
+    - Upload user documents, parse the file using LangChain's PDFPlumberLoader to extract content as Markdown
+    - Retrieve previously stored documents when needed
+    - List and organize files within project buckets
 
     """,
     sub_agents=[sequential_agent],
-    output_key="business_analyst_output"
-    )
-
+    output_key="business_analyst_output",
+    tools=[
+      storage.create_bucket_tool,
+      storage.list_buckets_tool,
+      storage.get_bucket_details_tool,
+      storage.list_blobs_tool,
+      storage.upload_file_gcs_tool,
+      storage.download_pdf_tool,
+      parsing.parse_file_tool
+    ],
+)
 
 root_agent = business_analyst_coordinator
-
-
