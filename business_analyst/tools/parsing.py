@@ -84,33 +84,30 @@ def parse_file(
         file_size_kb = len(pdf_data) / 1024
         num_pages = len(documents) if documents else 0
 
-        markdown_output = f"""## File Analysis: {file_name}
-- **Processing time:** {timestamp}
-- **Size:** {file_size_kb:.2f} KB
-- **Number of pages:** {num_pages}
-- **Parsed at:** {timestamp}
-
-### Extracted Content
-```text
-{content.strip()}
-```
-
----
-
-"""
+        markdown_output = f"""
+        ## File Analysis: {file_name}
+        - Processing time: {timestamp}
+        - Size: {file_size_kb:.2f} KB
+        - Number of pages: {num_pages}
+        - Parsed at: {timestamp}
+        - Extracted Content
+        ```text
+        {content.strip()}
+        ```
+        """
 
         # --- STEP 4: SAVE TO LOCAL MARKDOWN FILE ---
         try:
             # Validate the path and ensure it's not empty
             if not local_markdown_path or local_markdown_path.strip() == "":
-                local_markdown_path = "/home/juhan/Downloads/parsed_documents.md"
+                local_markdown_path = "/home/juhan/Downloads/Parsed_RFP.md"
             
             # Get the directory path
             directory = os.path.dirname(local_markdown_path)
             
             # If directory is empty, use Downloads folder
             if not directory:
-                local_markdown_path = "/home/juhan/Downloads/parsed_documents.md"
+                local_markdown_path = "/home/juhan/Downloads/Parsed_RFP.md"
                 directory = "/home/juhan/Downloads"
             
             # Ensure the Downloads directory exists
@@ -121,21 +118,21 @@ def parse_file(
                 f.write(markdown_output)
             
             # Add success message to output
-            save_message = f"\n**✅ Content saved to:** `{local_markdown_path}`"
+            save_message = f"\n Content saved to: `{local_markdown_path}`"
             markdown_output += save_message
             
         except Exception as save_error:
             logging.error(f"Error saving markdown file: {save_error}")
             # Fallback to a guaranteed path
-            fallback_path = "/home/juhan/Downloads/parsed_documents.md"
+            fallback_path = "/home/juhan/Downloads/Parsed_RFP.md"
             try:
                 os.makedirs("/home/juhan/Downloads", exist_ok=True)
                 with open(fallback_path, 'a', encoding='utf-8') as f:
                     f.write(markdown_output)
-                save_message = f"\n**✅ Content saved to fallback location:** `{fallback_path}`"
+                save_message = f"\n Content saved to fallback location: `{fallback_path}`"
                 markdown_output += save_message
             except Exception as fallback_error:
-                save_message = f"\n**⚠️ Warning:** Could not save to file: {str(save_error)}"
+                save_message = f"\n Warning: Could not save to file: {str(save_error)}"
                 markdown_output += save_message
 
         return markdown_output.strip()
@@ -143,7 +140,7 @@ def parse_file(
     except Exception as e:
         # Log detailed error for debugging if needed
         logging.error(f"Error parsing file with LangChain: {e}", exc_info=True)
-        return f"## Error Occurred\n**Details:** {str(e)}"
+        return f"## Error Occurred\nDetails: {str(e)}"
 
 # Create function tool
 parse_file_tool = FunctionTool(parse_file)

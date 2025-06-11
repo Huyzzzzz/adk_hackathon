@@ -44,7 +44,7 @@ ur_extraction = Agent(
     name="user_requirements_extraction",
     instruction=USER_REQUIREMENTS_EXTRACTION_PROMPT,
     output_schema=UserRequirementsOutput, 
-    output_key="user_requirements_extraction",
+    output_key="user_requirements_extraction"
 )
 
 ur_agent = Agent(
