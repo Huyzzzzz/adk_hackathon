@@ -379,50 +379,9 @@ def upload_file_to_gcs(
             "message": f"An unexpected error occurred: {str(e)}"
         }
 
-def download_file_from_gcs(bucket_name: str, file_path: str) -> str:
-    """
-    Downloads a file from Google Cloud Storage and returns its content as a string.
-
-    Args:
-        bucket_name (str): Name of the GCS bucket.
-        file_path (str): Path to the file in the bucket.
-
-    Returns:
-        str: Content of the file.
-
-    Raises:
-        Exception: If the bucket or file does not exist, or if there are issues during download.
-    """
-    try:
-        # Initialize the GCS client
-        client = storage.Client()
-        logging.info(f"Connecting to bucket: {bucket_name}")
-
-        # Get the bucket
-        bucket = client.get_bucket(bucket_name)
-        logging.info(f"Bucket '{bucket_name}' accessed successfully.")
-
-        # Get the blob (file)
-        blob = bucket.blob(file_path)
-        logging.info(f"Accessing file: {file_path}")
-
-        # Check if the blob exists
-        if not blob.exists():
-            raise FileNotFoundError(f"File '{file_path}' does not exist in bucket '{bucket_name}'.")
-
-        # Download the content
-        content = blob.download_as_text()
-        logging.info(f"File '{file_path}' downloaded successfully.")
-        return content
-
-    except Exception as e:
-        logging.error(f"Error downloading file from GCS: {e}")
-        raise
-
 # Create FunctionTools from the functions
 create_bucket_tool = FunctionTool(create_gcs_bucket)
 list_buckets_tool = FunctionTool(list_gcs_buckets)
 get_bucket_details_tool = FunctionTool(get_bucket_details)
 list_blobs_tool = FunctionTool(list_blobs_in_bucket)
 upload_file_gcs_tool = FunctionTool(upload_file_to_gcs)
-download_pdf_tool = FunctionTool(download_file_from_gcs)

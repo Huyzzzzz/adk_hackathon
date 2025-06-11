@@ -114,5 +114,6 @@ dmypy.json
 
 # dotenv
 .env
+.venv
 
 # End of file
