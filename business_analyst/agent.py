@@ -1,31 +1,21 @@
 """Main Business Analyst Agent that coordinates business analysis tasks."""
 from google.adk.agents import SequentialAgent, ParallelAgent, LlmAgent
-from datetime import date
 from .utils.utils import get_env_var
 from .sub_agents.ur_agent.agent import ur_agent
 from .sub_agents.ac_agent.agent import ac_agent
 from .sub_agents.do_agent.agent import do_agent
 from .sub_agents.uc_agent.agent import uc_agent
-
-from business_analyst.tools import (
-  storage,
-  parsing
-)
+from .tools.read_file import read_file_tool, find_file_tool
+from .tools.save_agent_ouput import save_actors_ouput_tool, save_data_objects_ouput_tool, save_use_cases_ouput_tool, save_user_requirements_ouput_tool
 
 
-date_today = date.today()
-
-# Step 1: User requirements analysis (runs first)
-# ur_agent already defined with output_key="user_requirements_extraction"
-
-# Step 2: Parallel analysis of actors and data objects (both receive user_requirements_extraction)
 parallel_analysis_agent = ParallelAgent(
     name="parallel_analysis_agent",
     sub_agents=[ac_agent, do_agent],
     description="Parallel analysis of actors and data objects based on user requirements"
 )
 
-# Step 3: Sequential pipeline - user requirements → parallel analysis → use cases
+
 sequential_agent = SequentialAgent(
     name="sequential_agent", 
     sub_agents=[
@@ -33,7 +23,8 @@ sequential_agent = SequentialAgent(
         parallel_analysis_agent,    # Step 2: Parallel analysis of actors and data objects
         uc_agent                    # Step 3: Generate use cases from all previous outputs
     ],
-    description="Business Analyst Multi-Agent System for comprehensive business analysis" # TODO: Check prompt
+    
+    description="Business Analyst Multi-Agent System for comprehensive business analysis"
 )
 
 business_analyst_coordinator = LlmAgent(
@@ -41,34 +32,33 @@ business_analyst_coordinator = LlmAgent(
     model=get_env_var("BA_VISTA_COORDINATOR_MODEL"),
     instruction="""
     You are Business_Analyst_Coordinator, the main business analysis coordination agent.
+    Only trigger the workflow when user ask you to analyse or read file
+    The output format to user must be in markdown with header and bullet point, if you recieve a diffrent format like JSON , please convert it to markdown without changing the content
     
-    If the user uploads a document or provides business requirements:
-      - Run the complete sequential analysis flow through all sub-agents
-      - Process requirements, identify actors, analyze data objects, and generate use cases
+    IMPORTANT GUIDELINES:
+    - Please follow strictly the 'WORKFLOW'
+    - The extracted content has all the information you need, if you can not find enough information to run agents, try to be more throughly
+    - Always maintain a professional, analytical, and collaborative tone.
+    - ONLY use the extracted content from the state as your primary knowledge base - DO NOT hallucinate
+    - Provide clear status updates on document processing and analysis progress
     
-    If the user asks questions without providing a document:
-      - Respond directly based on your knowledge base about business analysis
-      - Provide helpful information related to business analysis methodology
-      - Suggest what kind of documents the user might want to upload for full analysis
-    
-    Use the available GCS storage tools to:
-    - Create and manage buckets for organizing business analysis projects
-    - Upload user documents, parse the file using LangChain's PDFPlumberLoader to extract content as Markdown
-    - Retrieve previously stored documents when needed
-    - List and organize files within project buckets
-
+    WORKFLOW:
+    You must follow these phases and ask for user confirmation at each phases and steps:
+    - First use 'find_file_tool' to identify available PDF and MD files
+    - Display the list of files found to the user and ask them to select one, but try to guess what file the user is looking for based on their input
+    - Use 'read_file_tool' with the exact file path selected
+    - When you have the content to analyse, before activate the workflow, you should return the content extracted for user to check
+    - After receive the extracted content (document_processed = true in state), Once confirmed by user, you must run the full sequential analysis pipeline through the designated sub-agents:
+        - Process user requirements
+        - Identify actors 
+        - Analyze data objects 
+        - Generate use cases
+    - Remember outputs of 'ur_agent' is the input of 'ac_agent' and 'do_agent', outputs of 'ac_agent' and 'do_agent' and 'ur_agent' is the input of 'uc_agent'
+    - After the workflow is completed, you must save the outputs of each sub-agent by using 'save_actors_ouput_tool'(save actors), 'save_data_objects_ouput_tool'(save data objects), 'save_use_cases_ouput_tool'(save use cases), 'save_user_requirements_ouput_tool'(save user requirements).
     """,
     sub_agents=[sequential_agent],
     output_key="business_analyst_output",
-    tools=[
-      storage.create_bucket_tool,
-      storage.list_buckets_tool,
-      storage.get_bucket_details_tool,
-      storage.list_blobs_tool,
-      storage.upload_file_gcs_tool,
-      storage.download_pdf_tool,
-      parsing.parse_file_tool
-    ],
+    tools=[find_file_tool, read_file_tool, save_actors_ouput_tool, save_data_objects_ouput_tool, save_use_cases_ouput_tool, save_user_requirements_ouput_tool],
 )
 
 root_agent = business_analyst_coordinator

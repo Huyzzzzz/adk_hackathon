@@ -20,7 +20,7 @@ logging.basicConfig(
 def parse_file(
     tool_context: ToolContext,
     file_name: str = "uploaded_document.pdf",
-    local_markdown_path: str = "/home/juhan/Downloads/parsed_documents.md"
+    local_markdown_path: str = "../assets/output/parsed_documents.md"
 ) -> str:
     """
     Find attached PDF file, use LangChain's PDFPlumberLoader to extract
@@ -35,7 +35,6 @@ def parse_file(
         str: PDF file content formatted as Markdown
     """
     try:
-        # --- STEP 1: FIND PDF FILE DATA ---
         pdf_data: Optional[bytes] = None
         
         # Check if user_content exists and has parts
@@ -58,13 +57,14 @@ def parse_file(
         # --- STEP 2: USE LANGCHAIN LOADER WITH TEMPORARY FILE ---
         # Create a temporary file that will be automatically deleted after use
         with tempfile.NamedTemporaryFile(delete=True, suffix=".pdf", mode="wb") as temp_file:
-            # Write byte data to temporary file
             temp_file.write(pdf_data)
-            temp_file.flush() # Ensure all data is written to disk
+            temp_file.flush()
+            temp_file_path = temp_file.name
 
             # Now use LangChain Loader with the temporary file path
-            loader = PDFPlumberLoader(temp_file.name)
-            documents = loader.load() # This is where LangChain works its magic!
+            loader = PDFPlumberLoader(temp_file_path)
+            documents = loader.load() 
+            os.remove(temp_file_path)
 
         # --- STEP 3: PROCESS RESULTS AND FORMAT AS MARKDOWN ---
         # `loader.load()` returns a list of Documents, each Document is a page
