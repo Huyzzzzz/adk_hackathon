@@ -3,7 +3,8 @@ from datetime import datetime
 from google.adk.tools import ToolContext
 from google.adk.tools import FunctionTool
 import os
-
+from typing_extensions import Any, Dict
+import base64
 
 def find_document_files_tool(tool_context: ToolContext, directory: str = "assets/sample_data") -> dict:
     """
@@ -48,7 +49,102 @@ def find_document_files_tool(tool_context: ToolContext, directory: str = "assets
             "status": "error", 
             "message": f"Error finding document files: {str(e)}"
         }
-
+def save_document_files_tool(tool_context: ToolContext, directory: str = "assets/sample_data") -> Dict[str, Any]:
+    """
+    Save uploaded file from ADK web UI to local directory.
+    Based on working GCS upload pattern.
+    """
+    try:
+        if (hasattr(tool_context, "user_content") and 
+            tool_context.user_content and 
+            tool_context.user_content.parts):
+            
+            os.makedirs(directory, exist_ok=True)
+            saved_files = []
+            
+            for part in tool_context.user_content.parts:
+                if hasattr(part, "inline_data") and part.inline_data:
+                    if (part.inline_data.mime_type and 
+                        (part.inline_data.mime_type.startswith("application/") or 
+                        part.inline_data.mime_type.startswith("image/") or
+                        part.inline_data.mime_type.startswith("text/")) and
+                        part.inline_data.data):
+                        
+                        file_data = part.inline_data.data
+                        
+                        filename = getattr(part.inline_data, "filename", None) or "uploaded_file"
+                        
+                        if not os.path.splitext(filename)[1]:
+                            if part.inline_data.mime_type == "application/pdf":
+                                filename += ".pdf"
+                            elif part.inline_data.mime_type.startswith("image/"):
+                                ext = part.inline_data.mime_type.split("/")[1]
+                                filename += f".{ext}"
+                        
+                        file_path = os.path.join(directory, filename)
+                        counter = 1
+                        base, ext = os.path.splitext(file_path)
+                        while os.path.exists(file_path):
+                            file_path = f"{base}_{counter}{ext}"
+                            counter += 1
+                        
+                        try:
+                            if isinstance(file_data, str):
+                                try:
+                                    decoded_data = base64.b64decode(file_data)
+                                    with open(file_path, 'wb') as f:
+                                        f.write(decoded_data)
+                                    file_size = len(decoded_data)
+                                except:
+                                    with open(file_path, 'w', encoding='utf-8') as f:
+                                        f.write(file_data)
+                                    file_size = len(file_data.encode('utf-8'))
+                            else:
+                                with open(file_path, 'wb') as f:
+                                    f.write(file_data)
+                                file_size = len(file_data)
+                            
+                            if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+                                saved_files.append(file_path)
+                                print(f"Successfully saved: {file_path} ({file_size} bytes)")
+                                
+                                if file_path.lower().endswith('.pdf'):
+                                    with open(file_path, 'rb') as f:
+                                        header = f.read(4)
+                                        if header == b'%PDF':
+                                            print(f"PDF file verified: {file_path}")
+                                        else:
+                                            print(f"Warning: {file_path} may not be a valid PDF (header: {header})")
+                            else:
+                                print(f"Failed to save file: {file_path}")
+                                
+                        except Exception as e:
+                            print(f"Error saving file {filename}: {e}")
+                            continue
+            
+            if saved_files:
+                if "saved_files" not in tool_context.state:
+                    tool_context.state["saved_files"] = []
+                tool_context.state["saved_files"].extend(saved_files)
+                
+                return {
+                    "status": "success",
+                    "message": f"Successfully saved {len(saved_files)} file(s).",
+                    "saved_paths": saved_files,
+                    "details": f"Files saved to directory: {directory}"
+                }
+        
+        return {
+            "status": "error",
+            "message": "No file found in the current message. Please upload a file and try again.",
+            "details": "Files must be attached directly to the current message."
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"An unexpected error occurred: {str(e)}"
+        }
 def read_document_content_tool(tool_context: ToolContext, file_path: str) -> dict:
     """
     Tool to read and extract content from .md or .pdf files.
@@ -88,7 +184,7 @@ def read_document_content_tool(tool_context: ToolContext, file_path: str) -> dic
             }
         
         # Update state with content in the expected variable name
-        tool_context.state["user_requirements_extraction"] = content
+        tool_context.state["extracted_content"] = content
         tool_context.state["document_processed"] = True
         
         return {
@@ -221,3 +317,4 @@ def save_to_markdown_tool(tool_context: ToolContext, output_path: str = "assets/
 save_ouput_tool = FunctionTool(save_to_markdown_tool)
 find_file_tool = FunctionTool(find_document_files_tool)
 read_file_tool = FunctionTool(read_document_content_tool)
+save_input_tool = FunctionTool(save_document_files_tool)
