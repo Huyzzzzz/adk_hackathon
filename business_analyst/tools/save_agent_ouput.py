@@ -1,4 +1,3 @@
-from pypdf import PdfReader
 from datetime import datetime
 from google.adk.tools import ToolContext
 from google.adk.tools import FunctionTool
