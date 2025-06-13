@@ -3,10 +3,11 @@ Configuration settings for the UR agent.
 """
 
 import os
+from ..utils.utils import get_env_var
 
 # Google Cloud Project Settings
-PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "")
-LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+PROJECT_ID = get_env_var("GOOGLE_CLOUD_PROJECT")
+LOCATION = get_env_var("GOOGLE_CLOUD_LOCATION")
 
 # GCS Storage Settings
 GCS_DEFAULT_STORAGE_CLASS = "STANDARD"

@@ -3,7 +3,9 @@ from google.cloud import storage
 from google.api_core.exceptions import GoogleAPIError
 from google.adk.tools import ToolContext, FunctionTool
 from typing import Dict, Any, Optional
+import os
 
+from ..utils.utils import get_env_var
 from ..config import (
     PROJECT_ID,
     GCS_DEFAULT_STORAGE_CLASS,
@@ -20,6 +22,16 @@ logging.basicConfig(
     level=getattr(logging, LOG_LEVEL),
     format=LOG_FORMAT
 )
+
+# Ensure Google Application Credentials are set if provided
+try:
+    GOOGLE_APPLICATION_CREDENTIALS = get_env_var("GOOGLE_APPLICATION_CREDENTIALS")
+    # Set the environment variable if not already set
+    if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_APPLICATION_CREDENTIALS
+except ValueError:
+    # GOOGLE_APPLICATION_CREDENTIALS is optional - the client can use other auth methods
+    logging.info("GOOGLE_APPLICATION_CREDENTIALS not set, using default authentication")
 
 # Initialize the GCS client
 client = storage.Client(project=PROJECT_ID)
