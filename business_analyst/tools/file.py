@@ -4,6 +4,7 @@ from google.adk.tools import FunctionTool
 import os
 from typing_extensions import Any, Dict
 import base64
+from datetime import datetime
 
 def find_document_files_tool(tool_context: ToolContext, directory: str = "assets/sample_data") -> dict:
     """
@@ -51,7 +52,6 @@ def find_document_files_tool(tool_context: ToolContext, directory: str = "assets
 def save_document_files_tool(tool_context: ToolContext, directory: str = "assets/sample_data") -> Dict[str, Any]:
     """
     Save uploaded file from ADK web UI to local directory.
-    Based on working GCS upload pattern.
     """
     try:
         if (hasattr(tool_context, "user_content") and 
@@ -72,7 +72,11 @@ def save_document_files_tool(tool_context: ToolContext, directory: str = "assets
                         
                         file_data = part.inline_data.data
                         
-                        filename = getattr(part.inline_data, "filename", None) or "uploaded_file"
+                        if hasattr(part.inline_data, "filename") and part.inline_data.filename:
+                            filename = part.inline_data.filename
+                        else:
+                            filename = "uploaded_file"
+                            print("Warning: No filename provided for uploaded file, using default name.")
                         
                         # Add extension based on mime type if missing
                         if not os.path.splitext(filename)[1]:
@@ -89,11 +93,14 @@ def save_document_files_tool(tool_context: ToolContext, directory: str = "assets
                                 else:
                                     filename += ".txt"
                         
-                        file_path = os.path.join(directory, filename)
+                        base_name, ext = os.path.splitext(filename)
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        unique_filename = f"{base_name}_{timestamp}{ext}"
+                        file_path = os.path.join(directory, unique_filename)
                         counter = 1
-                        base, ext = os.path.splitext(file_path)
                         while os.path.exists(file_path):
-                            file_path = f"{base}_{counter}{ext}"
+                            unique_filename = f"{base_name}_{timestamp}_{counter}{ext}"
+                            file_path = os.path.join(directory, unique_filename)
                             counter += 1
                         
                         try:

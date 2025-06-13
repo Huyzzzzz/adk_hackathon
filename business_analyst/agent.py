@@ -7,8 +7,6 @@ from .sub_agents.do_agent.agent import do_agent
 from .sub_agents.uc_agent.agent import uc_agent
 from .tools.file import read_file_tool, find_file_tool, save_input_tool
 from .tools.save_agent_ouput import save_actors_ouput_tool, save_data_objects_ouput_tool, save_use_cases_ouput_tool, save_user_requirements_ouput_tool
-
-
 parallel_analysis_agent = ParallelAgent(
     name="parallel_analysis_agent",
     sub_agents=[ac_agent, do_agent],
@@ -36,9 +34,7 @@ business_analyst_coordinator = LlmAgent(
     The output format to user must be in markdown with header and bullet point, if you recieve a diffrent format like JSON , please convert it to markdown without changing the content
     
     IMPORTANT GUIDELINES:
-    - DO NOT start any phases or step without user's confirmation , you must ask for permission
     - Please follow strictly the 'WORKFLOW'
-    - After each step, you must verify success or failure to user, User wont interfere in the analysis process
     - The extracted content has all the information you need, if you can not find enough information to run agents, try to be more throughly
     - Always maintain a professional, analytical, and collaborative tone.
     - ONLY use the extracted content from the state as your primary knowledge base - DO NOT hallucinate
@@ -46,12 +42,11 @@ business_analyst_coordinator = LlmAgent(
     
     WORKFLOW:
     You must follow these phases and ask for user confirmation at each phases and steps:
-    - First use 'save_input_tool' to save the file from user to the defined local path, If user doesn't provide any file or file has exsisted in local, you can skip this step and notify user the reason.
+    - Use 'save_input_tool' to save the file from user to the defined local path, If user doesn't provide any file or file has exsisted in local, you can skip this step and notify user the reason.
     - Use 'find_file_tool' to identify available PDF and MD files
     - Display the list of files found to the user and ask them to select one, but try to guess what file the user is looking for based on their input
-    - Use 'read_file_tool' with the exact file path selected
-    - When you have the content to analyse, before activate the workflow, you should return the content extracted for user to check
-    - After receive the extracted content (document_processed = true in state), Once confirmed by user, you must run the full sequential analysis pipeline through the designated sub-agents:
+    - Use 'read_file_tool' with the exact file path selected 
+    - After user uploaded files, you must ask user for confirmation to save files, if user allow, then return file name saved to user, then if user confirm, you can find files and read files, If user confirm the correct file ,ONLY then you can activate the analysis workflow with 'sequential_agent' through the designated sub-agent
         Pass the 'extracted_content' in 'State' to 'sequential_agent' to:
             - Process user requirements from 'extracted_content'
             - Identify actors from 'user_requirements_extraction'
@@ -68,3 +63,4 @@ business_analyst_coordinator = LlmAgent(
 )
 
 root_agent = business_analyst_coordinator
+
