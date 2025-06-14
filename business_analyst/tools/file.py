@@ -6,7 +6,7 @@ from typing_extensions import Any, Dict
 import base64
 from datetime import datetime
 
-def find_document_files_tool(tool_context: ToolContext, directory: str = "assets/sample_data") -> dict:
+def find_document_files_tool(tool_context: ToolContext, directory: str = "/tmp") -> dict:
     """
     Tool to find all .md and .pdf files in the specified directory.
     
@@ -101,173 +101,97 @@ def find_document_files_tool(tool_context: ToolContext, directory: str = "assets
             "message": f"Error finding document files: {str(e)}",
             "suggestion": "Please check if the directory exists and is accessible."
         }
-def save_document_files_tool(tool_context, directory: str = "assets/sample_data") -> Dict[str, Any]:
-    """
-    Save uploaded file from ADK web UI to local directory.
-    
-    Args:
-        tool_context: The ADK tool context
-        directory: Directory to save files (default: assets/sample_data)
-    
-    Returns:
-        dict: Status of save operation with details
-    """
+def save_document_files_tool(tool_context, directory: str = "/tmp") -> Dict[str, Any]:
     try:
-        # Create directory if it doesn't exist
-        try:
-            os.makedirs(directory, exist_ok=True)
-        except Exception as mkdir_error:
-            return {
-                "status": "error",
-                "message": f"Failed to create directory {directory}: {str(mkdir_error)}",
-                "suggestion": "Check directory permissions or try a different location."
-            }
+        os.makedirs(directory, exist_ok=True)
 
-        # Validate tool_context user content
         if not hasattr(tool_context, "user_content") or not tool_context.user_content:
             return {
                 "status": "error",
-                "message": "No user content found in the current message.",
+                "message": "No user content found.",
                 "suggestion": "Please upload a file and try again."
             }
 
         if not hasattr(tool_context.user_content, "parts") or not tool_context.user_content.parts:
             return {
                 "status": "error",
-                "message": "No file parts found in the user content.",
+                "message": "No file parts found.",
                 "suggestion": "Please upload a file and try again."
             }
 
         saved_files = []
-        skipped_files = []
         error_files = []
 
         for part in tool_context.user_content.parts:
-            if hasattr(part, "inline_data") and part.inline_data:
-                if (part.inline_data.mime_type and 
-                    (part.inline_data.mime_type.startswith("application/") or 
-                     part.inline_data.mime_type.startswith("text/")) and
-                    part.inline_data.data):
+            if hasattr(part, "inline_data") and part.inline_data and part.inline_data.data:
+                mime = part.inline_data.mime_type
+                file_data = part.inline_data.data
 
-                    file_data = part.inline_data.data
-                    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                # Determine file extension
+                if mime == "application/pdf":
+                    extension = ".pdf"
+                elif mime == "text/markdown":
+                    extension = ".md"
+                elif mime == "text/plain":
+                    extension = ".txt"
+                else:
+                    extension = ""
 
-                    # Determine file extension
-                    if part.inline_data.mime_type == "application/pdf":
-                        extension = ".pdf"
-                    elif part.inline_data.mime_type == "text/markdown":
-                        extension = ".md"
-                    elif part.inline_data.mime_type == "text/plain":
-                        if isinstance(file_data, str) and ("# " in file_data or "## " in file_data or "```" in file_data):
-                            extension = ".md"
-                        else:
-                            extension = ".txt"
-                    else:
-                        extension = ""
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                base_filename = f"document_{timestamp}"
+                filename = f"{base_filename}{extension}"
+                file_path = os.path.join(directory, filename)
 
-                    # Simplified filename generation
-                    base_filename = f"document_{timestamp}"
-                    filename = f"{base_filename}{extension}"
-                    file_path = os.path.join(directory, filename)
-
-                    # Ensure unique filename
-                    counter = 1
-                    while os.path.exists(file_path):
-                        filename = f"{base_filename}_{counter}{extension}"
-                        file_path = os.path.join(directory, filename)
-                        counter += 1
-
-                    try:
-                        if isinstance(file_data, str):
-                            try:
-                                decoded_data = base64.b64decode(file_data)
-                                with open(file_path, 'wb') as f:
-                                    f.write(decoded_data)
-                                file_size = len(decoded_data)
-                            except:
-                                with open(file_path, 'w', encoding='utf-8') as f:
-                                    f.write(file_data)
-                                file_size = len(file_data.encode('utf-8'))
-                        else:
+                try:
+                    if isinstance(file_data, str):
+                        try:
+                            decoded_data = base64.b64decode(file_data)
                             with open(file_path, 'wb') as f:
+                                f.write(decoded_data)
+                        except Exception:
+                            with open(file_path, 'w', encoding='utf-8') as f:
                                 f.write(file_data)
-                            file_size = len(file_data)
+                    else:
+                        with open(file_path, 'wb') as f:
+                            f.write(file_data)
 
-                        if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
-                            file_size_str = f"{file_size / 1024:.1f} KB" if file_size < 1024 * 1024 else f"{file_size / (1024 * 1024):.1f} MB"
-                            file_info = {
-                                "name": filename,
-                                "path": file_path,
-                                "size": file_size_str,
-                                "mime_type": part.inline_data.mime_type
-                            }
+                    file_size = os.path.getsize(file_path)
+                    size_str = f"{file_size / 1024:.1f} KB" if file_size < 1024 * 1024 else f"{file_size / (1024 * 1024):.1f} MB"
 
-                            # Optional: PDF verification
-                            if file_path.lower().endswith('.pdf'):
-                                with open(file_path, 'rb') as f:
-                                    header = f.read(4)
-                                    if header != b'%PDF':
-                                        file_info["warning"] = "File may not be a valid PDF"
+                    saved_files.append({
+                        "name": filename,
+                        "path": file_path,
+                        "size": size_str,
+                        "mime_type": mime
+                    })
 
-                            saved_files.append(file_info)
-                        else:
-                            error_files.append({
-                                "name": filename,
-                                "error": "Failed to save file or file is empty"
-                            })
+                except Exception as save_error:
+                    error_files.append({
+                        "name": filename,
+                        "error": str(save_error)
+                    })
 
-                    except Exception as save_error:
-                        error_files.append({
-                            "name": filename,
-                            "error": str(save_error)
-                        })
-
-        # Update state with saved files
         if saved_files:
-            if "saved_files" not in tool_context.state:
-                tool_context.state["saved_files"] = []
-            tool_context.state["saved_files"].extend([f["path"] for f in saved_files])
+            tool_context.state["saved_files"] = [f["path"] for f in saved_files]
 
             return {
                 "status": "success",
-                "message": f"Successfully saved {len(saved_files)} file(s).",
+                "message": f"Saved {len(saved_files)} file(s) to temporary directory.",
                 "saved_files": saved_files,
-                "skipped_files": skipped_files if skipped_files else None,
                 "error_files": error_files if error_files else None,
-                "details": f"Files saved to directory: {directory}"
+                "details": f"Files saved temporarily to: {directory}"
             }
 
-        elif skipped_files:
-            return {
-                "status": "info",
-                "message": f"All files ({len(skipped_files)}) already exist with identical content.",
-                "skipped_files": skipped_files,
-                "suggestion": "You can continue with existing files."
-            }
-
-        else:
-            error_details = []
-            if not hasattr(tool_context, "user_content"):
-                error_details.append("tool_context missing 'user_content' attribute.")
-            elif not tool_context.user_content:
-                error_details.append("'user_content' is empty or None.")
-            elif not tool_context.user_content.parts:
-                error_details.append("'user_content.parts' is empty or None.")
-            else:
-                error_details.append("No valid files found in the uploaded content.")
-
-            return {
-                "status": "error",
-                "message": "No files were saved.",
-                "error_details": error_details,
-                "suggestion": "Please upload a PDF, MD, or TXT file and try again."
-            }
+        return {
+            "status": "error",
+            "message": "No valid files were saved.",
+            "error_files": error_files if error_files else None
+        }
 
     except Exception as e:
         return {
             "status": "error",
-            "message": f"An unexpected error occurred: {str(e)}",
-            "suggestion": "Please try again or contact support if the issue persists."
+            "message": f"Unexpected error: {str(e)}"
         }
 
 def read_document_content_tool(tool_context: ToolContext, file_path: str) -> dict:

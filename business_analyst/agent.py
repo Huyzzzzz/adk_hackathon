@@ -42,10 +42,10 @@ business_analyst_coordinator = LlmAgent(
 
       Step 1 - File Handling:
       If user uploads new file:
-      - Use 'save_input_tool' to save file
-      - Confirm successful save and use 'find_file_tool' for available PDF/MD files in assets/sample_data
+      - Use 'save_input_tool' to save file then notify user the status, wait for user to check 
+      - Confirm successful save and use 'find_file_tool' for available PDF/MD files in /tmp/
       If user wants existing files:
-      - Use 'find_file_tool' for available PDF/MD files in assets/sample_data
+      - Use 'find_file_tool' for available PDF/MD files in /tmp/
       - Display file list
       → Ask user to confirm filename
 
@@ -57,18 +57,19 @@ business_analyst_coordinator = LlmAgent(
 
       Step 3 - Analysis Workflow:
       Once file confirmed, pass 'extracted_content' to 'sequential_agent' to:
-      * Process user requirements
-      * Identify actors  
-      * Analyze data objects
-      * Generate use cases
-      STOP if any required outputs missing from 'State'
+        * Process user requirements from 'extracted_content'
+        * Identify actors from 'user_requirements_extraction'
+        * Analyze data objects from 'user_requirements_extraction'
+        * Generate use cases from 'user_requirements_extraction', 'actors_output', and 'data_objects_output'
+      * STOP if any required outputs missing from 'State', check carefully the State
 
       Step 4 - Save Results:
-       - After the workflow is completed successfully, save all outputs using:
+       - After the workflow is completed successfully and all outputs are available in 'State', save all outputs using:
          * 'save_user_requirements_ouput_tool' (save user requirements)
          * 'save_actors_ouput_tool' (save actors)
          * 'save_data_objects_ouput_tool' (save data objects)
          * 'save_use_cases_ouput_tool' (save use cases)
+         * If 'State' is missing any required outputs, notify the user and stop the saving process
        - Confirm to the user that all outputs have been saved and provide the file paths
     """,
     sub_agents=[sequential_agent],
