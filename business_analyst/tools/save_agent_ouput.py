@@ -2,8 +2,8 @@ from datetime import datetime
 from google.adk.tools import ToolContext
 from google.adk.tools import FunctionTool
 import os
-from .file import get_working_directory
-def save_ur_ouput(tool_context: ToolContext, directory: str = "") -> dict:
+
+def save_ur_ouput(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
     """
     Tool to export all relevant ur state content to a markdown file.
     
@@ -62,7 +62,7 @@ def save_ur_ouput(tool_context: ToolContext, directory: str = "") -> dict:
             "message": f"Error exporting UR state: {str(e)}"
         }
 
-def save_ac_ouput(tool_context: ToolContext, directory: str = "") -> dict:
+def save_ac_ouput(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
     """
     Tool to export all relevant ac state content to a markdown file.
     
@@ -144,7 +144,7 @@ def save_ac_ouput(tool_context: ToolContext, directory: str = "") -> dict:
             "message": f"Error exporting UR state: {str(e)}"
         }
         
-def save_do_ouput(tool_context: ToolContext, directory: str = "") -> dict:
+def save_do_ouput(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
     """
     Tool to export all relevant do state content to a markdown file.
     
@@ -197,7 +197,7 @@ def save_do_ouput(tool_context: ToolContext, directory: str = "") -> dict:
             "message": f"Error exporting UR state: {str(e)}"
         }
 
-def save_uc_ouput(tool_context: ToolContext, directory: str = "") -> dict:
+def save_uc_ouput(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
     """
     Tool to export all relevant do state content to a markdown file.
     

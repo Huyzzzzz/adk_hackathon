@@ -380,3 +380,4 @@ def read_document_content_tool(tool_context: ToolContext, file_path: str, max_pr
 find_file_tool = FunctionTool(find_document_files_tool)
 save_input_tool = FunctionTool(save_document_files_tool)
 read_file_tool = FunctionTool(read_document_content_tool)
+save_input_tool = FunctionTool(save_document_files_tool)
