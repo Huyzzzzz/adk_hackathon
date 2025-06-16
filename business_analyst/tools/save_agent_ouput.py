@@ -3,7 +3,7 @@ from google.adk.tools import ToolContext
 from google.adk.tools import FunctionTool
 import os
 from .file import get_working_directory
-def save_ur_ouput(tool_context: ToolContext, directory: str = "") -> dict:
+def save_ur_output(tool_context: ToolContext, directory: str = "") -> dict:
     """
     Tool to export all relevant ur state content to a markdown file.
     
@@ -62,7 +62,7 @@ def save_ur_ouput(tool_context: ToolContext, directory: str = "") -> dict:
             "message": f"Error exporting UR state: {str(e)}"
         }
 
-def save_ac_ouput(tool_context: ToolContext, directory: str = "") -> dict:
+def save_ac_output(tool_context: ToolContext, directory: str = "") -> dict:
     """
     Tool to export all relevant ac state content to a markdown file.
     
@@ -144,7 +144,7 @@ def save_ac_ouput(tool_context: ToolContext, directory: str = "") -> dict:
             "message": f"Error exporting UR state: {str(e)}"
         }
         
-def save_do_ouput(tool_context: ToolContext, directory: str = "") -> dict:
+def save_do_output(tool_context: ToolContext, directory: str = "") -> dict:
     """
     Tool to export all relevant do state content to a markdown file.
     
@@ -197,7 +197,7 @@ def save_do_ouput(tool_context: ToolContext, directory: str = "") -> dict:
             "message": f"Error exporting UR state: {str(e)}"
         }
 
-def save_uc_ouput(tool_context: ToolContext, directory: str = "") -> dict:
+def save_uc_output(tool_context: ToolContext, directory: str = "") -> dict:
     """
     Tool to export all relevant do state content to a markdown file.
     
@@ -251,7 +251,7 @@ def save_uc_ouput(tool_context: ToolContext, directory: str = "") -> dict:
             "status": "error",
             "message": f"Error exporting UR state: {str(e)}"
         }
-save_user_requirements_ouput_tool = FunctionTool(save_ur_ouput)
-save_actors_ouput_tool = FunctionTool(save_ac_ouput)
-save_data_objects_ouput_tool = FunctionTool(save_do_ouput)
-save_use_cases_ouput_tool = FunctionTool(save_uc_ouput)
+save_user_requirements_ouput_tool = FunctionTool(save_ur_output)
+save_actors_ouput_tool = FunctionTool(save_ac_output)
+save_data_objects_ouput_tool = FunctionTool(save_do_output)
+save_use_cases_ouput_tool = FunctionTool(save_uc_output)
