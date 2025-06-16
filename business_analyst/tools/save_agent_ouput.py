@@ -2,19 +2,21 @@ from datetime import datetime
 from google.adk.tools import ToolContext
 from google.adk.tools import FunctionTool
 import os
-
-def save_ur_ouput(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
+from .file import get_working_directory
+def save_ur_ouput(tool_context: ToolContext, directory: str = "") -> dict:
     """
     Tool to export all relevant ur state content to a markdown file.
     
     Args:
         tool_context: The ADK tool context
-        output_path: Path to the output directory (default: assets/output)
+        directory: Path to the output directory (default: assets/output)
     
     Returns:
         dict: Status of the export operation
     """
     try:
+        if not directory or directory.strip() == "":
+            directory = get_working_directory(tool_context)
         user_reqs_state = tool_context.state.get("user_requirements_extraction", {})
         
         # Create markdown content
@@ -33,10 +35,10 @@ def save_ur_ouput(tool_context: ToolContext, output_path: str = "assets/output/a
                 markdown_content += f"- **Detail**: {req.get('detail', 'N/A')}\n"
                 markdown_content += f"- **Covered USR**: {req.get('covered_usr', 'N/A')}\n\n"
         
-        os.makedirs(output_path, exist_ok=True)
+        os.makedirs(directory, exist_ok=True)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = os.path.join(output_path, f"ur_output_version_{timestamp}.md")
+        output_file = os.path.join(directory, f"ur_output_version_{timestamp}.md")
         
         # Write to file
         try:
@@ -60,18 +62,20 @@ def save_ur_ouput(tool_context: ToolContext, output_path: str = "assets/output/a
             "message": f"Error exporting UR state: {str(e)}"
         }
 
-def save_ac_ouput(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
+def save_ac_ouput(tool_context: ToolContext, directory: str = "") -> dict:
     """
     Tool to export all relevant ac state content to a markdown file.
     
     Args:
         tool_context: The ADK tool context
-        output_path: Path to the output directory (default: assets/output)
+        directory: Path to the output directory (default: assets/output)
     
     Returns:
         dict: Status of the export operation
     """
     try:
+        if not directory or directory.strip() == "":
+            directory = get_working_directory(tool_context)
         ac_state = tool_context.state.get("ac_agent_output", {})
         
         markdown_content = "# ACTOR_OUTPUT\n\n"
@@ -114,10 +118,10 @@ def save_ac_ouput(tool_context: ToolContext, output_path: str = "assets/output/a
                 markdown_content += "### Stakeholder Summary\n\n"
                 markdown_content += f"{ac_state['stakeholder_summary']}\n\n"
                 
-        os.makedirs(output_path, exist_ok=True)
+        os.makedirs(directory, exist_ok=True)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = os.path.join(output_path, f"ac_output_version_{timestamp}.md")
+        output_file = os.path.join(directory, f"ac_output_version_{timestamp}.md")
         
         try:
             with open(output_file, 'w', encoding='utf-8') as f:
@@ -140,18 +144,20 @@ def save_ac_ouput(tool_context: ToolContext, output_path: str = "assets/output/a
             "message": f"Error exporting UR state: {str(e)}"
         }
         
-def save_do_ouput(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
+def save_do_ouput(tool_context: ToolContext, directory: str = "") -> dict:
     """
     Tool to export all relevant do state content to a markdown file.
     
     Args:
         tool_context: The ADK tool context
-        output_path: Path to the output directory (default: assets/output)
+        directory: Path to the output directory (default: assets/output)
     
     Returns:
         dict: Status of the export operation
     """
     try:
+        if not directory or directory.strip() == "":
+            directory = get_working_directory(tool_context)
         do_state = tool_context.state.get("do_agent_output", {})
         
         markdown_content = "# DATA_OBJECT_OUTPUT\n\n"
@@ -165,10 +171,10 @@ def save_do_ouput(tool_context: ToolContext, output_path: str = "assets/output/a
                 markdown_content += f"- **ID**: {obj.get('id', 'N/A')}\n"
                 markdown_content += f"- **Description**: {obj.get('description', 'N/A')}\n\n"
         
-        os.makedirs(output_path, exist_ok=True)
+        os.makedirs(directory, exist_ok=True)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = os.path.join(output_path, f"do_output_version_{timestamp}.md")
+        output_file = os.path.join(directory, f"do_output_version_{timestamp}.md")
         
         try:
             with open(output_file, 'w', encoding='utf-8') as f:
@@ -191,18 +197,20 @@ def save_do_ouput(tool_context: ToolContext, output_path: str = "assets/output/a
             "message": f"Error exporting UR state: {str(e)}"
         }
 
-def save_uc_ouput(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
+def save_uc_ouput(tool_context: ToolContext, directory: str = "") -> dict:
     """
     Tool to export all relevant do state content to a markdown file.
     
     Args:
         tool_context: The ADK tool context
-        output_path: Path to the output directory (default: assets/output)
+        directory: Path to the output directory (default: assets/output)
     
     Returns:
         dict: Status of the export operation
     """
     try:
+        if not directory or directory.strip() == "":
+            directory = get_working_directory(tool_context)
         uc_state = tool_context.state.get("uc_agent_output", {})
         
         markdown_content = "# DATA_OBJECT_OUTPUT\n\n"
@@ -218,10 +226,10 @@ def save_uc_ouput(tool_context: ToolContext, output_path: str = "assets/output/a
                 markdown_content += f"- **Description**: {use_case.get('description', 'N/A')}\n\n"
                 markdown_content += f"- **Postconditions**: {use_case.get('postconditions', 'N/A')}\n\n"
                 markdown_content += f"- **Preconditions**: {use_case.get('preconditions', 'N/A')}\n\n"
-        os.makedirs(output_path, exist_ok=True)
+        os.makedirs(directory, exist_ok=True)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = os.path.join(output_path, f"uc_output_version_{timestamp}.md")
+        output_file = os.path.join(directory, f"uc_output_version_{timestamp}.md")
         
         try:
             with open(output_file, 'w', encoding='utf-8') as f:
