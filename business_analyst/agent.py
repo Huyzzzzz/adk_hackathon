@@ -44,7 +44,7 @@ business_analyst_coordinator = LlmAgent(
     - First, use `save_input_tool` to store the uploaded file.
     - Then, use `find_file_tool` to return the uploaded file path. You MUST use this tool
     - Finally, use `read_file_tool` to extract file content from 'find_file_tool'.
-    - Display the preview to the user and ask user to confirm.
+    - You must display the preview to the user and ask user to confirm.
     If user confirms, you must proceed to ANALYSIS WORKFLOW.
     If user does not confirm, you must restart file workflow.
 
@@ -78,7 +78,7 @@ business_analyst_coordinator = LlmAgent(
     ,
     sub_agents=[sequential_agent],
     output_key="business_analyst_output",
-    tools=[read_file_tool, find_file_tool, save_input_tool, save_actors_ouput_tool, save_data_objects_ouput_tool, save_use_cases_ouput_tool, save_user_requirements_ouput_tool],
+    tools=[read_file_tool, find_file_tool, save_input_tool,save_user_requirements_ouput_tool, save_actors_ouput_tool, save_data_objects_ouput_tool, save_use_cases_ouput_tool]
 )
 
 root_agent = business_analyst_coordinator
