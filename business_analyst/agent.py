@@ -49,14 +49,14 @@ business_analyst_coordinator = LlmAgent(
     Pass uploaded file's content from 'business_analyst_output' to `sequential_agent` to control execution in the following logical order:
     First, invoke `ur_agent` to extract user requirements, Store the result in `user_requirements_extraction`
     Then, invoke `parallel_analysis_agent` to run:
-    - `ac_agent` to extract actors from `user_requirements_extraction`, Store the result in `actors_output`
-    - `do_agent` to extract data objects from `user_requirements_extraction`, Store the result in `data_objects_output` 
+    - `ac_agent` to extract actors from `user_requirements_extraction`, Store the result in `ac_agent_output`
+    - `do_agent` to extract data objects from `user_requirements_extraction`, Store the result in `do_agent_output` 
     Finally, you MUST generate use cases as the final step in the ANALYSIS WORKFLOW.
     To do this, invoke `uc_agent` using the following inputs:
     - `user_requirements_extraction`
-    - `actors_output`
-    - `data_objects_output`
-    - Store the result in `use_cases_output`.
+    - `ac_agent_output`
+    - `do_agent_output`
+    - Store the result in `uc_agent_output`.
     CAUTION: In the last step of the ANALYSIS WORKFLOW, you MUST call `uc_agent` to generate use cases based on the extracted user requirements, actors, and data objects.
     """
 
