@@ -8,18 +8,15 @@ from .sub_agents.uc_agent.agent import uc_agent
 
 
 
-parallel_analysis_agent = ParallelAgent(
-    name="parallel_analysis_agent",
-    sub_agents=[ac_agent, do_agent],
-    description="Parallel analysis of actors and data objects based on user requirements"
-)
+
 
 
 sequential_agent = SequentialAgent(
     name="sequential_agent", 
     sub_agents=[
         ur_agent,
-        parallel_analysis_agent,
+        ac_agent,
+        do_agent,
         uc_agent,
     ],
     description="Business Analyst Multi-Agent System for comprehensive business analysis"
@@ -48,9 +45,8 @@ business_analyst_coordinator = LlmAgent(
     
     Pass uploaded file's content from 'business_analyst_output' to `sequential_agent` to control execution in the following logical order:
     First, invoke `ur_agent` to extract user requirements, Store the result in `user_requirements_extraction`
-    Then, invoke `parallel_analysis_agent` to run:
-    - `ac_agent` to extract actors from `user_requirements_extraction`, Store the result in `ac_agent_output`
-    - `do_agent` to extract data objects from `user_requirements_extraction`, Store the result in `do_agent_output` 
+    Then invoke `ac_agent` to extract actors from `user_requirements_extraction`, Store the result in `ac_agent_output`
+    After that, invoke `do_agent` to extract data objects from `user_requirements_extraction`, Store the result in `do_agent_output` 
     Finally, you MUST generate use cases as the final step in the ANALYSIS WORKFLOW.
     To do this, invoke `uc_agent` using the following inputs:
     - `user_requirements_extraction`
