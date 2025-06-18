@@ -37,18 +37,18 @@ business_analyst_coordinator = LlmAgent(
 
     User will upload a file.
     If no file is uploaded , you must ask: "Please upload the file you want to analyze."
-    - Display the preview content of the uploaded file in 'business_analyst_output'to the user and ask user to confirm.
+    - Display the preview content in 'business_analyst_output' of the uploaded file in 'business_analyst_output'to the user and ask user to confirm.
     If user confirms, you must proceed to ANALYSIS WORKFLOW.
     If user does not confirm, you must restart file workflow.
 
     **ANALYSIS WORKFLOW ** NOTE: If any of the following outputs already exist in `State`, you MUST return them immediately to the user and use them for subsequent steps. DO NOT re-run the corresponding agents.
     
-    Pass uploaded file's content from 'business_analyst_output' to `sequential_agent` to control execution in the following logical order:
+    Pass uploaded content from 'business_analyst_output' to `sequential_agent` to control execution in the following logical order:
     First, invoke `ur_agent` to extract user requirements, Store the result in `user_requirements_extraction`
     Aftet 'ur_agent', invoke `ac_agent` to extract actors from `user_requirements_extraction`, Store the result in `ac_agent_output`
     After 'ac_agent', invoke `do_agent` to extract data objects from `user_requirements_extraction`, Store the result in `do_agent_output` 
     Finally, you MUST generate use cases as the final step in the ANALYSIS WORKFLOW.
-    To do this, invoke `uc_agent` using the following inputs:
+    To do this, invoke `uc_agent` ONLY using the following contents:
     - `user_requirements_extraction`
     - `ac_agent_output`
     - `do_agent_output`

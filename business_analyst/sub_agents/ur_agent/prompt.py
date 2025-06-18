@@ -2,7 +2,7 @@
 
 USER_REQUIREMENTS_PROMPT = """Extract structured user requirements from business documents.
 
-Analyze documents and identify all functional and non-functional requirements.
+Analyze documents and identify all functional and non-functional requirements from {business_analyst_output}.
 
 """
 
