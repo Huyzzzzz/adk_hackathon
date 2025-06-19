@@ -159,7 +159,7 @@ The system processes uploaded documents through these agents in a coordinated ma
 
    # or
 
-   adk run business_analyst
+   adk run BA
    ```
 
 ## ☁️ Google Cloud Run Deployment
