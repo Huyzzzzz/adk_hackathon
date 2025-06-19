@@ -4,175 +4,259 @@ This is a multi-agent system that processes documents and generates business req
 
 ## 📁 Project Structure
 
-```
+```text
 adk-hackathon/
 ├── README.md                                       # Main project documentation and setup instructions
-├── docker-compose.yml                              # Docker services orchestration for local development
-├── .env.example                                    # Template for environment variables
 ├── .gitignore                                      # Git ignore patterns for the entire project
-└── requirements.txt                                # Python dependencies for the entire project
-
-├── frontend/                                       # React Application - User Interface Layer
-│   ├── package.json                                # NPM dependencies and scripts for React app
-│   ├── package-lock.json                           # Locked versions of NPM dependencies
-│   ├── public/                                     # Static assets served directly by the web server
-│   │   ├── index.html                              # Main HTML template for React app
-│   │   └── favicon.ico                             # Website icon displayed in browser tabs
-│   ├── src/                                        # React source code directory
-│   │   ├── components/                             # Reusable React components organized by feature
-│   │   │   ├── Auth/                               # Authentication-related components
-│   │   │   ├── Dashboard/                          # Main dashboard interface components
-│   │   │   ├── Chat/                               # Chat interface for user-agent interaction
-│   │   │   └── FileUpload/                         # Document upload and management interface
-│   │   ├── services/                               # API communication and external service integrations
-│   │   ├── hooks/                                  # Custom React hooks for shared logic
-│   │   ├── context/                                # React Context providers for global state
-│   │   ├── utils/                                  # Utility functions and helpers
-│   │   ├── App.tsx                                 # Main React application component and routing
-│   │   ├── App.css                                 # Global application styles
-│   └── .env                                        # Frontend environment variables (API URLs, keys)
-
-├── backend/                                        # FastAPI Backend System - Core Application Logic
-│   ├── app/                                        # Main application package
-│   │   ├── main.py                                 # FastAPI application entry point, startup/shutdown events
-│   │   ├── config/                                 # Application configuration management
-│   │   │   ├── settings.py                         # Application settings, environment variables, constants
-│   │   ├── core/                                   # Core application functionality
-│   │   │   ├── security.py                         # JWT token handling, password hashing, authentication logic
-│   │   │   ├── dependencies.py                     # FastAPI dependency injection functions
-│   │   │   └── middleware.py                       # Custom middleware for CORS, logging, request processing
-│   │   ├── models/                                 # Database models (ORM layer)
-│   │   ├── schemas/                                # Pydantic schemas for request/response validation
-│   │   ├── api/                                    # FastAPI route handlers (REST endpoints)
-│   │   │   ├── __init__.py                         # Package initializer
-│   │   │   ├── auth.py                             # Authentication endpoints (login, register, refresh token)
-│   │   │   ├── users.py                            # User management endpoints (profile, preferences)
-│   │   │   ├── documents.py                        # Document upload, list, delete, download endpoints
-│   │   │   ├── agents.py                           # Agent management and status endpoints
-│   │   │   └── chat.py                             # Chat and conversation management endpoints
-│   │   ├── services/                               # Business logic layer (service classes)
-│   │   │   ├── __init__.py                         # Package initializer
-│   │   │   ├── auth_service.py                     # Authentication business logic and user validation
-│   │   │   ├── user_service.py                     # User management and profile operations
-│   │   │   ├── document_service.py                 # Document processing, storage, and retrieval logic
-│   │   │   ├── preprocessing_service.py            # Document content extraction and cleaning
-│   │   │   └── orchestrator_service.py             # Multi-agent coordination and task management
-│   │   └── utils/                                  # Utility functions and helpers
-│   │       ├── __init__.py                         # Package initializer
-│   │       ├── file_utils.py                       # File handling, validation, and storage utilities
-│   │       ├── text_processing.py                  # Text extraction, cleaning, and preprocessing utilities
-│   │       └── exceptions.py                       # Custom exception classes for error handling
-│   ├── agents/                                     # Multi-Agent System - AI Agent Implementation
-│   │   ├── __init__.py                             #  Package initializer
-│   │   ├── base/                                   #  Base classes and shared agent functionality
-│   │   │   ├── __init__.py                         # Package initializer
-│   │   │   ├── agent.py                            # Abstract base agent class with common methods
-│   │   │   ├── tools.py                            # Base tools interface and tool execution framework
-│   │   │   └── memory.py                           # Agent memory management and context persistence
-│   │   ├── orchestrator/                           # Central coordination agent
-│   │   │   ├── __init__.py                         # Package initializer
-│   │   │   ├── orchestrator_agent.py               # Main orchestrator agent that coordinates all other agents
-│   │   │   ├── coordinator.py                      # Agent coordination and communication logic
-│   │   │   └── task_dispatcher.py                  # Task assignment and workflow management
-│   │   ├── ur_agent/                               # HR Agent - Handles User Requirements
-│   │   │   ├── __init__.py                         # Package initializer
-│   │   │   ├── ur_agent.py                         # Main HR agent implementation
-│   │   │   ├── tools/                              # HR agent specific tools
-│   │   │   │   ├── __init__.py                     # Package initializer
-│   │   │   │   ├── extract_information.py          # Tool to extract information from documents
-│   │   │   │   ├── get_user_requirementpy          # Tool to retrieve user requirements
-│   │   │   │   └── update_user_requirement.py      # Tool to update user requirements
-│   │   │   └── prompts/                            # HR agent prompts and templates
-│   │   │       └── hr_prompts.py                   # Prompt templates for HR agent interactions
-│   │   ├── do_agent/                               # DO Agent - Handles Data Objects
-│   │   │   ├── __init__.py                         # Package initializer
-│   │   │   ├── do_agent.py                         # Main DO agent implementation
-│   │   │   ├── tools/                              # DO agent specific tools
-│   │   │   │   ├── __init__.py                     # Package initializer
-│   │   │   │   ├── get_user_requirement.py         # Tool to get user requirements from HR agent
-│   │   │   │   ├── generate_data_object.py         # Tool to generate data objects
-│   │   │   │   └── update_data_objects.py          # Tool to update and manage data objects
-│   │   │   └── prompts/                            # DO agent prompts and templates
-│   │   │       └── do_prompts.py                   # Prompt templates for DO agent interactions
-│   │   ├── ac_agent/                               # AC Agent - Handles Actions
-│   │   │   ├── __init__.py                         # Package initializer
-│   │   │   ├── ac_agent.py                         # Main AC agent implementation
-│   │   │   ├── tools/                              # AC agent specific tools
-│   │   │   │   ├── __init__.py                     # Package initializer
-│   │   │   │   ├── get_user_requirement.py         # Tool to get user requirements
-│   │   │   │   ├── get_data_object.py              # Tool to get data objects from DO agent
-│   │   │   │   └── update_actions.py               # Tool to update and manage actions
-│   │   │   └── prompts/                            # AC agent prompts and templates
-│   │   │       └── ac_prompts.py                   # Prompt templates for AC agent interactions
-│   │   └── uc_agent/                               # UC Agent - Handles Use Cases
-│       │   ├── __init__.py                         # Package initializer
-│       │   ├── uc_agent.py                         # Main UC agent implementation
-│       │   ├── tools/                              # UC agent specific tools
-│       │   │   ├── __init__.py                     # Package initializer
-│       │   │   ├── get_data_object.py              # Tool to get data objects from DO agent
-│       │   │   ├── get_actors.py                   # Tool to get actions from AC agent
-│       │   │   └── generate_use_case.py            # Tool to generate comprehensive use cases
-│       │   └── prompts/                            # UC agent prompts and templates
-│       │       └── uc_prompts.py                   # Prompt templates for UC agent interactions
-│   ├── data_sources/                               # External Data Source Integrations
-│   │   ├── __init__.py                             # Package initializer
-│   │   ├── google_cloud/                           # Google Cloud Platform integration
-│   │   │   ├── __init__.py                         # Package initializer
-│   │   │   ├── storage_client.py                   # Google Cloud Storage operations (upload, download, list)
-│   │   │   └── auth.py                             # Google Cloud authentication and credential management
-│   │   ├── knowledge_base/                         # Vector database and knowledge management
-│   │   │   ├── __init__.py                         # Package initializer
-│   │   │   ├── vector_store.py                     # Vector database operations (store, search, retrieve)
-│   │   │   └── embeddings.py                       # Text embeddings generation and management
-│   ├── database/                                   # Database Management Layer
-│   │   ├── __init__.py                             # Package initializer
-│   │   ├── connection.py                           # Database connection pool and session management
-│   │   ├── migrations/                             # Database schema migrations
-│   │   │   ├── __init__.py                         # Package initializer
-│   │   │   └── versions/                           # Individual migration files (auto-generated)
-│   │   └── repositories/                           # Data Access Layer (Repository Pattern)
-│   │       ├── __init__.py                         # Package initializer
-│   │       ├── user_repository.py                  # User data access operations
-│   │       ├── document_repository.py              # Document metadata and storage operations
-│   │       ├── agent_repository.py                 # Agent configuration and state persistence
-│   │       └── conversation_repository.py          # Chat conversation data operations
-│   ├── memory_store/                               # In-Memory State Management
-│   │   ├── __init__.py                             # Package initializer
-│   │   ├── firestore_client.py                     # Google Firestore client for persistent state
-│   │   ├── redis_client.py                         # Redis client for caching and session management
-│   │   └── memory_manager.py                       # Memory state coordination and management
-│   ├── tests/                                      # Test Suite
-│   │   ├── __init__.py                             # Package initializer
-│   │   ├── conftest.py                             # Pytest configuration and shared fixtures
-│   │   ├── test_auth.py                            # Authentication system tests
-│   │   ├── test_agents/                            # Agent system tests
-│   │   │   ├── __init__.py                         # Package initializer
-│   │   │   ├── test_orchestrator.py                # Orchestrator agent tests
-│   │   │   ├── test_hr_agent.py                    # HR agent functionality tests
-│   │   │   ├── test_do_agent.py                    # DO agent functionality tests
-│   │   │   ├── test_ac_agent.py                    # AC agent functionality tests
-│   │   │   └── test_uc_agent.py                    # UC agent functionality tests
-│   │   ├── test_services/                          # Service layer tests
-│   │   │   ├── __init__.py                         # Package initializer
-│   │   │   ├── test_document_service.py            # Document processing service tests
-│   │   │   └── test_preprocessing_service.py       # Preprocessing service tests
-│   │   └── test_api/                               # API endpoint tests
-│   │       ├── __init__.py                         # Package initializer
-│   │       ├── test_auth_endpoints.py              # Authentication endpoint tests
-│   │       ├── test_document_endpoints.py          # Document management endpoint tests
-│   │       └── test_agent_endpoints.py             # Agent management endpoint tests
-│   ├── requirements.txt                            # Python package dependencies for backend
-│   ├── Dockerfile                                  # Docker container configuration for backend
-│   └── .env                                        # Backend environment variables
-
-├── docs/                                           # Documentation
-│   ├── api/
-│   ├── architecture/
-│   └── user_guides/
-
-└── config/                                         # Configuration Files
-    ├── logging.yaml
-    ├── agent_config.yaml
-    ├── database_config.yaml
-    └── environment/
+├── .env                                         # Environment variables configuration
+├── .env.example                                 # Template for environment variables
+├── requirements.txt                                # Python dependencies for the entire project
+├── pyproject.toml                                  # Project configuration and dependencies (for uv)
+├── uv.lock                                         # Locked dependencies (when using uv)
+├── Dockerfile                                      # Docker container configuration
+├── deploy.sh                                       # Google Cloud Run deployment script
+├── main.py                                         # FastAPI application entry point
+├── test.py                                         # Test script for the application
+│
+└── BA/                                             # Main Business Analyst Agent Module
+    ├── __init__.py                                 # Package initializer
+    ├── agent.py                                    # Main orchestrator agent implementation
+    ├── prompt.py                                   # Orchestrator agent prompts
+    │
+    ├── config/                                     # Configuration management
+    │   └── __init__.py                             # Configuration settings and constants
+    │
+    ├── sub_agents/                                 # Specialized Sub-Agents
+    │   ├── __init__.py                             # Sub-agents package initializer
+    │   │
+    │   ├── ur_agent/                               # User Requirements (UR) Agent
+    │   │   ├── __init__.py                         # UR agent package initializer
+    │   │   ├── agent.py                            # UR agent implementation
+    │   │   └── prompt.py                           # UR agent prompts
+    │   │
+    │   ├── do_agent/                               # Data Objects (DO) Agent
+    │   │   ├── __init__.py                         # DO agent package initializer
+    │   │   ├── agent.py                            # DO agent implementation
+    │   │   └── prompt.py                           # DO agent prompts
+    │   │
+    │   ├── ac_agent/                               # Actions (AC) Agent
+    │   │   ├── __init__.py                         # AC agent package initializer
+    │   │   ├── agent.py                            # AC agent implementation
+    │   │   └── prompt.py                           # AC agent prompts
+    │   │
+    │   └── uc_agent/                               # Use Cases (UC) Agent
+    │       ├── __init__.py                         # UC agent package initializer
+    │       ├── agent.py                            # UC agent implementation
+    │       └── prompt.py                           # UC agent prompts
+    │
+    ├── tools/                                      # Shared Tools and Utilities
+    │   ├── __init__.py                             # Tools package initializer
+    │   ├── file.py                                 # File handling operations
+    │   ├── parsing.py                              # Document parsing utilities
+    │   ├── storage.py                              # Storage operations and management
+    │   └── save_agent_ouput.py                     # Agent output saving utilities
+    │
+    └── utils/                                      # General Utilities
+        ├── __init__.py                             # Utils package initializer
+        └── utils.py                                # Helper functions and utilities
 ```
+
+## 🏗️ Architecture Overview
+
+This project uses the Google ADK (Agent Development Kit) framework to build a multi-agent system. The architecture consists of:
+
+1. **Main Orchestrator Agent** (`business_analyst/agent.py`) - Coordinates all sub-agents and manages the overall workflow
+2. **Specialized Sub-Agents**:
+   - **UR Agent** - Extracts and manages user requirements from documents
+   - **DO Agent** - Identifies and structures data objects
+   - **AC Agent** - Defines actions and operations
+   - **UC Agent** - Generates comprehensive use cases
+
+Each agent has its own:
+
+- Implementation file (`agent.py`)
+- Prompt templates (`prompt.py`)
+- Specific tools and utilities
+
+The system processes uploaded documents through these agents in a coordinated manner to produce structured business requirements and specifications.
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python 3.11 or higher
+- Google Cloud SDK (gcloud CLI)
+- Google Cloud Project with the following APIs enabled:
+  - Vertex AI API
+  - Cloud Run API
+  - Cloud Storage API (if using GCS)
+- Google API Key or Service Account credentials
+
+### Environment Setup
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone <repository-url>
+   cd adk-hackathon
+   ```
+
+2. **Set up Python environment:**
+
+   ```bash
+   # Using venv
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+   # Or using uv (if you have it installed)
+   uv venv
+   source .venv/bin/activate
+   ```
+
+3. **Install dependencies:**
+
+   ```bash
+   pip install -r requirements.txt
+   # Or using uv
+   uv sync
+   ```
+
+4. **Configure environment variables:**
+
+   ```bash
+   # Copy the env template
+   cp .env.example .env
+
+   # Edit .env with your values:
+   export GOOGLE_CLOUD_PROJECT="your-project-id"
+   export GOOGLE_CLOUD_LOCATION="us-central1"
+   export GOOGLE_GENAI_USE_VERTEXAI=True
+   export GOOGLE_API_KEY="your-api-key"
+   export BA_VISTA_COORDINATOR_MODEL=gemini-2.5-pro
+   export UR_AGENT_MODEL=gemini-2.5-pro
+   export DO_AGENT_MODEL=gemini-2.5-pro
+   export AC_AGENT_MODEL=gemini-2.5-pro
+   export UC_AGENT_MODEL=gemini-2.5-pro
+
+   # Load the environment variables
+   source .env
+   ```
+
+## 💻 Running Locally
+
+### Start the Backend Server
+
+1. **Activate your virtual environment:**
+
+   ```bash
+   source .venv/bin/activate
+   ```
+
+2. **Run the ADK Web UI or ADK in terminal:**
+
+   ```bash
+   adk web
+
+   # or
+
+   adk run business_analyst
+   ```
+
+### Testing the Application
+
+Run the test suite:
+
+```bash
+python test.py
+```
+
+## ☁️ Google Cloud Run Deployment
+
+### Prerequisites for Cloud Run
+
+1. **Install and configure Google Cloud SDK:**
+
+   ```bash
+   # Install gcloud CLI (if not already installed)
+   # Follow: https://cloud.google.com/sdk/docs/install
+
+   # Authenticate
+   gcloud auth login
+
+   # Set your project
+   gcloud config set project YOUR_PROJECT_ID
+   ```
+
+2. **Enable required APIs:**
+
+   ```bash
+   gcloud services enable run.googleapis.com
+   gcloud services enable cloudbuild.googleapis.com
+   gcloud services enable aiplatform.googleapis.com
+   ```
+
+### Deploy to Cloud Run
+
+1. **Using the deployment script:**
+
+   ```bash
+   # Make sure environment variables are set
+   source .env
+
+   # Run the deployment script
+   chmod +x deploy.sh
+   ./deploy.sh
+   ```
+
+2. **Manual deployment:**
+
+   ```bash
+   gcloud run deploy business-analyst-service \
+     --source . \
+     --region us-central1 \
+     --project YOUR_PROJECT_ID \
+     --allow-unauthenticated \
+     --set-env-vars="GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID,GOOGLE_CLOUD_LOCATION=us-central1,GOOGLE_GENAI_USE_VERTEXAI=True,GOOGLE_API_KEY=YOUR_API_KEY,BA_VISTA_COORDINATOR_MODEL=gemini-2.5-pro,UR_AGENT_MODEL=gemini-2.5-pro,DO_AGENT_MODEL=gemini-2.5-pro,AC_AGENT_MODEL=gemini-2.5-pro,UC_AGENT_MODEL=gemini-2.5-pro" \
+     --timeout 1200
+   ```
+
+3. **Access your deployed service:**
+   - After deployment, you'll receive a service URL
+   - Visit: `https://business-analyst-service-148093331204.us-central1.run.app`
+
+## 🔧 Configuration
+
+### Model Configuration
+
+You can configure different AI models for each agent by modifying the environment variables:
+
+- `BA_VISTA_COORDINATOR_MODEL`: Model for the Business Analyst coordinator
+- `UR_AGENT_MODEL`: Model for User Requirements agent
+- `DO_AGENT_MODEL`: Model for Data Objects agent
+- `AC_AGENT_MODEL`: Model for Actions agent
+- `UC_AGENT_MODEL`: Model for Use Cases agent
+
+Available models:
+
+- `gemini-2.5-pro` (recommended)
+- `gemini-2.0-flash`
+
+### CORS Configuration
+
+Update `ALLOWED_ORIGINS` in `main.py` to configure CORS for your frontend:
+
+```python
+ALLOWED_ORIGINS = ["http://localhost", "http://localhost:8080", "*"]
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feat/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feat/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

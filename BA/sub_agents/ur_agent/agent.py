@@ -3,8 +3,7 @@ The User Requirement (UR) Generation Agent.
 """
 
 from typing import List
-from google.adk import Agent
-from google.adk.agents import Agent
+from google.adk.agents import LlmAgent
 from pydantic import BaseModel, Field
 from google.adk.tools.agent_tool import AgentTool
 from google.genai.types import GenerateContentConfig
@@ -27,7 +26,7 @@ class UserRequirementsOutput(BaseModel):
     requirements: List[UserRequirement] = Field(description="List of extracted user requirements")
 
 # Create the User Requirements Agent with LLM reasoning-based tools
-ur_extraction = Agent(
+ur_extraction = LlmAgent(
     model=get_env_var("UR_AGENT_MODEL"),
     name="user_requirements_extraction",
     instruction=USER_REQUIREMENTS_EXTRACTION_PROMPT,
@@ -35,7 +34,7 @@ ur_extraction = Agent(
     output_key="user_requirements_extraction",
 )
 
-ur_agent = Agent(
+ur_agent = LlmAgent(
     model=get_env_var("UR_AGENT_MODEL"),
     name="ur_agent",
     instruction=USER_REQUIREMENTS_PROMPT,
@@ -43,6 +42,7 @@ ur_agent = Agent(
         AgentTool(agent=ur_extraction)
     ],
     generate_content_config=GenerateContentConfig(
-        temperature=0.0, top_p=0.5
+        temperature=0.0,
+        top_p=0.5
     )
 )
