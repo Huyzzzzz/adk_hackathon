@@ -17,11 +17,11 @@ sequential_agent = SequentialAgent(
     description="Business Analyst Multi-Agent System for comprehensive business analysis"
 )
 
-business_analyst_coordinator = LlmAgent(
+root_agent = LlmAgent(
     name="business_analyst_root_agent",
     model=get_env_var("BA_VISTA_COORDINATOR_MODEL"),
     instruction="""
-    You are Business_Analyst_Coordinator, the main agent responsible for coordinating a structured, multi-step business analysis process.
+    You are Business Analyst Coordinator, the main agent responsible for coordinating a structured, multi-step business analysis process.
 
     **HARD CONSTRAINTS**:
     - Do NOT generate, transform, or explain outputs by yourself, you must use your tools and 'sequential_agent'.
@@ -32,7 +32,7 @@ business_analyst_coordinator = LlmAgent(
 
     User will upload a file.
     If no file is uploaded , you must ask: "Please upload the file you want to analyze."
-    - Display the preview content in 'business_analyst_output' of the uploaded file in 'business_analyst_output'to the user and ask user to confirm.
+    - Display the preview content in 'business_analyst_output' of the uploaded file in 'business_analyst_output' to the user and ask user to confirm.
     If user confirms, you must proceed to ANALYSIS WORKFLOW.
     If user does not confirm, you must restart file workflow.
 
@@ -40,7 +40,7 @@ business_analyst_coordinator = LlmAgent(
     
     Pass uploaded content from 'business_analyst_output' to `sequential_agent` to control execution in the following logical order:
     First, invoke `ur_agent` to extract user requirements, Store the result in `user_requirements_extraction`
-    Aftet 'ur_agent', invoke `ac_agent` to extract actors from `user_requirements_extraction`, Store the result in `ac_agent_output`
+    After 'ur_agent', invoke `ac_agent` to extract actors from `user_requirements_extraction`, Store the result in `ac_agent_output`
     After 'ac_agent', invoke `do_agent` to extract data objects from `user_requirements_extraction`, Store the result in `do_agent_output` 
     Finally, you MUST generate use cases as the final step in the ANALYSIS WORKFLOW.
     To do this, invoke `uc_agent` ONLY using the following contents:
@@ -50,11 +50,9 @@ business_analyst_coordinator = LlmAgent(
     - Store the result in `uc_agent_output`.
     CAUTION: In the last step of the ANALYSIS WORKFLOW, you MUST call `uc_agent` to generate use cases based on the extracted user requirements, actors, and data objects.
     """
-
     ,
     sub_agents=[sequential_agent],
     output_key="business_analyst_output",
 
 )
 
-root_agent = business_analyst_coordinator
