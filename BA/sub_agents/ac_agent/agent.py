@@ -3,8 +3,7 @@ The Actors (AC) Generation Agent.
 """
 
 from typing import List
-from google.adk import Agent
-from google.adk.agents import Agent
+from google.adk.agents import LlmAgent
 from pydantic import BaseModel, Field
 from google.adk.tools.agent_tool import AgentTool
 from google.genai.types import GenerateContentConfig
@@ -37,12 +36,8 @@ class ActorsOutput(BaseModel):
     stakeholder_summary: str = Field(description="Summary of stakeholder analysis")
 
 
-# TODO: Define tool in here
-def parse_actors():
-    pass
-
 # Create the Actors extraction Agent with LLM reasoning-based tools
-ac_extraction = Agent(
+ac_extraction = LlmAgent(
     model=get_env_var("AC_AGENT_MODEL"),
     name="actors_extraction",
     instruction=ACTORS_EXTRACTION_PROMPT,
@@ -50,7 +45,7 @@ ac_extraction = Agent(
     output_key="ac_agent_output",
 )
 
-ac_agent = Agent(
+ac_agent = LlmAgent(
     model=get_env_var("AC_AGENT_MODEL"),
     name="ac_agent",
     # description="Identifies actors and stakeholders from requirements analysis",
@@ -59,6 +54,7 @@ ac_agent = Agent(
         AgentTool(agent=ac_extraction),
     ],
     generate_content_config=GenerateContentConfig(
-        temperature=0.0, top_p=0.5
+        temperature=0.0, 
+        top_p=0.5
     )
 )

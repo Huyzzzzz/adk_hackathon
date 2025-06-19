@@ -3,20 +3,21 @@ from google.adk.tools import ToolContext
 from google.adk.tools import FunctionTool
 import os
 
-def save_ur_ouput(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
+def save_ur_output(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
     """
     Tool to export all relevant ur state content to a markdown file.
     
     Args:
         tool_context: The ADK tool context
-        directory: Path to the output directory (default: assets/output)
+        output_path: Path to the output directory (default: assets/output/agent)
     
     Returns:
         dict: Status of the export operation
     """
     try:
+        directory = output_path
         if not directory or directory.strip() == "":
-            directory = get_working_directory(tool_context)
+            directory = "assets/output/agent"
         user_reqs_state = tool_context.state.get("user_requirements_extraction", {})
         
         # Create markdown content
@@ -62,20 +63,21 @@ def save_ur_ouput(tool_context: ToolContext, output_path: str = "assets/output/a
             "message": f"Error exporting UR state: {str(e)}"
         }
 
-def save_ac_ouput(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
+def save_ac_output(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
     """
     Tool to export all relevant ac state content to a markdown file.
     
     Args:
         tool_context: The ADK tool context
-        directory: Path to the output directory (default: assets/output)
+        output_path: Path to the output directory (default: assets/output/agent)
     
     Returns:
         dict: Status of the export operation
     """
     try:
+        directory = output_path
         if not directory or directory.strip() == "":
-            directory = get_working_directory(tool_context)
+            directory = "assets/output/agent"
         ac_state = tool_context.state.get("ac_agent_output", {})
         
         markdown_content = "# ACTOR_OUTPUT\n\n"
@@ -141,23 +143,24 @@ def save_ac_ouput(tool_context: ToolContext, output_path: str = "assets/output/a
     except Exception as e:
         return {
             "status": "error",
-            "message": f"Error exporting UR state: {str(e)}"
+            "message": f"Error exporting AC state: {str(e)}"
         }
         
-def save_do_ouput(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
+def save_do_output(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
     """
     Tool to export all relevant do state content to a markdown file.
     
     Args:
         tool_context: The ADK tool context
-        directory: Path to the output directory (default: assets/output)
+        output_path: Path to the output directory (default: assets/output/agent)
     
     Returns:
         dict: Status of the export operation
     """
     try:
+        directory = output_path
         if not directory or directory.strip() == "":
-            directory = get_working_directory(tool_context)
+            directory = "assets/output/agent"
         do_state = tool_context.state.get("do_agent_output", {})
         
         markdown_content = "# DATA_OBJECT_OUTPUT\n\n"
@@ -194,38 +197,40 @@ def save_do_ouput(tool_context: ToolContext, output_path: str = "assets/output/a
     except Exception as e:
         return {
             "status": "error",
-            "message": f"Error exporting UR state: {str(e)}"
+            "message": f"Error exporting DO state: {str(e)}"
         }
 
-def save_uc_ouput(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
+def save_uc_output(tool_context: ToolContext, output_path: str = "assets/output/agent") -> dict:
     """
-    Tool to export all relevant do state content to a markdown file.
+    Tool to export all relevant uc state content to a markdown file.
     
     Args:
         tool_context: The ADK tool context
-        directory: Path to the output directory (default: assets/output)
+        output_path: Path to the output directory (default: assets/output/agent)
     
     Returns:
         dict: Status of the export operation
     """
     try:
+        directory = output_path
         if not directory or directory.strip() == "":
-            directory = get_working_directory(tool_context)
+            directory = "assets/output/agent"
         uc_state = tool_context.state.get("uc_agent_output", {})
         
-        markdown_content = "# DATA_OBJECT_OUTPUT\n\n"
+        markdown_content = "# USE_CASE_OUTPUT\n\n"
         markdown_content += f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
         
         if uc_state:
             markdown_content += "## USE_CASE\n\n"
             use_cases = uc_state.get("use_cases", [])
             for use_case in use_cases:
-                markdown_content += f"### {use_case.get('name', 'Unnamed Object')}\n\n"
+                markdown_content += f"### {use_case.get('name', 'Unnamed Use Case')}\n\n"
                 markdown_content += f"- **ID**: {use_case.get('id', 'N/A')}\n"
                 markdown_content += f"- **Actor**: {use_case.get('actors', 'N/A')}\n"
                 markdown_content += f"- **Description**: {use_case.get('description', 'N/A')}\n\n"
                 markdown_content += f"- **Postconditions**: {use_case.get('postconditions', 'N/A')}\n\n"
                 markdown_content += f"- **Preconditions**: {use_case.get('preconditions', 'N/A')}\n\n"
+        
         os.makedirs(directory, exist_ok=True)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -237,7 +242,7 @@ def save_uc_ouput(tool_context: ToolContext, output_path: str = "assets/output/a
             
             return {
                 "status": "success",
-                "message": f"Successfully exported DO state to {output_file}",
+                "message": f"Successfully exported UC state to {output_file}",
                 "output_file": output_file
             }
         except Exception as write_error:
@@ -249,9 +254,10 @@ def save_uc_ouput(tool_context: ToolContext, output_path: str = "assets/output/a
     except Exception as e:
         return {
             "status": "error",
-            "message": f"Error exporting UR state: {str(e)}"
+            "message": f"Error exporting UC state: {str(e)}"
         }
-save_user_requirements_ouput_tool = FunctionTool(save_ur_ouput)
-save_actors_ouput_tool = FunctionTool(save_ac_ouput)
-save_data_objects_ouput_tool = FunctionTool(save_do_ouput)
-save_use_cases_ouput_tool = FunctionTool(save_uc_ouput)
+
+save_user_requirements_output_tool = FunctionTool(save_ur_output)
+save_actors_output_tool = FunctionTool(save_ac_output)
+save_data_objects_output_tool = FunctionTool(save_do_output)
+save_use_cases_output_tool = FunctionTool(save_uc_output)

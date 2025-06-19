@@ -3,8 +3,7 @@ The Use Cases (UC) Generation Agent.
 """
 
 from typing import List, Optional
-from google.adk import Agent
-from google.adk.agents import Agent
+from google.adk.agents import LlmAgent
 from pydantic import BaseModel, Field
 from google.adk.tools.agent_tool import AgentTool
 from google.genai.types import GenerateContentConfig
@@ -47,12 +46,8 @@ class UseCasesOutput(BaseModel):
     # coverage_analysis: str = Field(description="Analysis of requirement coverage by use cases")
 
 
-# TODO: Define tool in here
-def parse_use_cases():
-    pass
-
 # Create the Use Cases extraction Agent with LLM reasoning-based tools
-uc_extraction = Agent(
+uc_extraction = LlmAgent(
     model=get_env_var("UC_AGENT_MODEL"),
     name="use_cases_extraction",
     instruction=USE_CASES_EXTRACTION_PROMPT,
@@ -60,7 +55,7 @@ uc_extraction = Agent(
     output_key="uc_agent_output",
 )
 
-uc_agent = Agent(
+uc_agent = LlmAgent(
     model=get_env_var("UC_AGENT_MODEL"),
     name="uc_agent",
     instruction=USE_CASES_PROMPT,
@@ -68,6 +63,7 @@ uc_agent = Agent(
         AgentTool(agent=uc_extraction),
     ],
     generate_content_config=GenerateContentConfig(
-        temperature=0.0, top_p=0.5
+        temperature=0.0, 
+        top_p=0.5
     )
 )
