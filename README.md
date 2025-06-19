@@ -65,7 +65,7 @@ adk-hackathon/
 
 This project uses the Google ADK (Agent Development Kit) framework to build a multi-agent system. The architecture consists of:
 
-1. **Main Orchestrator Agent** (`business_analyst/agent.py`) - Coordinates all sub-agents and manages the overall workflow
+1. **Main Orchestrator Agent** (`BA/agent.py`) - Coordinates all sub-agents and manages the overall workflow
 2. **Specialized Sub-Agents**:
    - **UR Agent** - Extracts and manages user requirements from documents
    - **DO Agent** - Identifies and structures data objects
@@ -161,14 +161,6 @@ The system processes uploaded documents through these agents in a coordinated ma
 
    adk run business_analyst
    ```
-
-### Testing the Application
-
-Run the test suite:
-
-```bash
-python test.py
-```
 
 ## ☁️ Google Cloud Run Deployment
 
