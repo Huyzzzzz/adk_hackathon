@@ -32,7 +32,7 @@ root_agent = LlmAgent(
 
     User will upload a file.
     If no file is uploaded , you must ask: "Please upload the file you want to analyze."
-    - Display the preview content in 'business_analyst_output' of the uploaded file in 'business_analyst_output' to the user and ask user to confirm.
+    You must display the preview content in 'business_analyst_output' of the uploaded file in 'business_analyst_output' to the user and ask user to confirm.
     If user confirms, you must proceed to ANALYSIS WORKFLOW.
     If user does not confirm, you must restart file workflow.
 
