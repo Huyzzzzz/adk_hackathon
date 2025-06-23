@@ -8,8 +8,7 @@ This is a multi-agent system that processes documents and generates business req
 adk-hackathon/
 ├── README.md                                       # Main project documentation and setup instructions
 ├── .gitignore                                      # Git ignore patterns for the entire project
-├── .env                                         # Environment variables configuration
-├── .env.example                                 # Template for environment variables
+├── .env.example                                 # Template for environment variables configuration
 ├── requirements.txt                                # Python dependencies for the entire project
 ├── pyproject.toml                                  # Project configuration and dependencies (for uv)
 ├── uv.lock                                         # Locked dependencies (when using uv)
