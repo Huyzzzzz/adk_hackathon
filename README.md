@@ -53,7 +53,7 @@ adk-hackathon/
     │   ├── file.py                                 # File handling operations
     │   ├── parsing.py                              # Document parsing utilities
     │   ├── storage.py                              # Storage operations and management
-    │   └── save_agent_ouput.py                     # Agent output saving utilities
+    │   └── save_agent_output.py                    # Agent output saving utilities
     │
     └── utils/                                      # General Utilities
         ├── __init__.py                             # Utils package initializer
